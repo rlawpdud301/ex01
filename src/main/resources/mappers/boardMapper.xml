@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yi.mapper.boardMapper">
+	<insert id="insert">
+		INSERT INTO book_ex.tbl_board
+		(title, content, writer)
+		VALUES(#{title}, #{content}, #{writer});
+	</insert>
+
+	<select id="read" resultType="TblBoardVO">
+		SELECT *
+		FROM book_ex.tbl_board
+		WHERE bno=#{bno}
+	</select>
+
+	<update id="update">
+		UPDATE book_ex.tbl_board
+		SET title=#{title},
+		content=#{content}
+		WHERE bno=#{bno}
+	</update>
+
+	<delete id="delete">
+		DELETE FROM book_ex.tbl_board
+		WHERE bno=#{bno}
+	</delete>
+
+	<select id="listAll" resultType="TblBoardVO">
+		SELECT *
+		FROM book_ex.tbl_board
+		order by bno desc
+	</select>
+
+	<update id="increaseCnt">
+		UPDATE book_ex.tbl_board
+		SET viewcnt= viewcnt+1
+		WHERE
+		bno=#{bno}
+	</update>
+
+	<select id="listPage" resultType="TblBoardVO">
+		SELECT *
+		FROM book_ex.tbl_board
+		order by bno desc
+		limit #{page},10
+	</select>
+
+	<select id="listCriteria" resultType="TblBoardVO">
+		SELECT *
+		FROM
+		book_ex.tbl_board
+		order by bno desc
+		limit #{pageSrart},#{perPafeNum}
+	</select>
+	<select id="totalCount" resultType="int">
+		select count(bno) from
+		book_ex.tbl_board
+	</select>
+
+	<sql id="search">
+		<if test="searchType=='t'.toString()">
+			where title like concat('%',#{keyword},'%')
+		</if>
+		<if test="searchType=='c'.toString()">
+			where content like concat('%',#{keyword},'%')
+		</if>
+		<if test="searchType=='w'.toString()">
+			where writer like concat('%',#{keyword},'%')
+		</if>
+		<if test="searchType=='tc'.toString()">
+			where title like concat('%',#{keyword},'%') or content
+			like concat('%',#{keyword},'%')
+		</if>
+		<if test="searchType=='cw'.toString()">
+			where writer like concat('%',#{keyword},'%') or content
+			like concat('%',#{keyword},'%')
+		</if>
+		<if test="searchType=='tcw'.toString()">
+			where title like concat('%',#{keyword},'%')
+			or writer like
+			concat('%',#{keyword},'%')
+			or content like
+			concat('%',#{keyword},'%')
+		</if>
+	</sql>
+
+	<select id="listSearch" resultType="TblBoardVO">
+		SELECT *
+		FROM book_ex.tbl_board
+		<include refid="search" />
+		order by bno desc
+		limit #{pageSrart},#{perPafeNum}
+	</select>
+
+	<select id="searchTotalCount" resultType="int">
+		select count(bno) from book_ex.tbl_board
+		<include refid="search" />
+	</select>
+
+	<update id="updateReplyCnt">
+		update tbl_board set replycnt = replycnt +#{amount}
+		where bno=#{bno}
+	</update>
+
+	<insert id="addAttach">
+		INSERT INTO book_ex.tbl_attach
+		(fullName, bno)
+		VALUES(#{fullName}, LAST_INSERT_ID());
+	</insert>
+
+	<select id="getAttach" resultType="String">
+		SELECT fullName
+		FROM
+		book_ex.tbl_attach
+		where bno=#{bno}
+		order by regdate
+	</select>
+
+	<delete id="deleteAttach">
+		DELETE FROM book_ex.tbl_attach
+		WHERE bno=#{bno}
+	</delete>
+
+	<insert id="addAttachByBno">
+		INSERT INTO book_ex.tbl_attach 
+		(fullName, bno) 
+		VALUES(#{fullName}, #{bno});
+	</insert>
+	
+	<delete id="deleteAttachByName">
+		DELETE FROM book_ex.tbl_attach
+		WHERE fullName=#{fullName} and bno=#{bno}
+	</delete>
+</mapper>
